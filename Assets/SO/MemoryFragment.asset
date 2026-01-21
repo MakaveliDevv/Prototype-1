@@ -14,7 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MemoryFragment
   id: 0
   floorIndex: 0
-  title: 
-  descriptionText: 
+  title: Sadness
+  descriptionText: A lot of sadness
   tag: 
   audioClip: {fileID: 0}
+  interactUIPrompt: InteractPrompt
+  collectUIPrompt: CollectPrompt
+  interactUI: {fileID: 0}
+  collectUI: {fileID: 0}

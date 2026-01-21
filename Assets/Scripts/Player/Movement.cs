@@ -96,32 +96,6 @@ public class Movement
         controller.Move(move * currentSpeed * Time.deltaTime);
     }
 
-    // private void HandleCrouch()
-    // {
-    //     // Toggle crouch
-    //     if (InputManager.CrouchPressed)
-    //     {
-    //         Debug.Log("Crouch Pressed...");
-    //         if (!isCrouching)
-    //         {
-    //             StartCrouch();
-    //         }
-    //         else
-    //         {
-    //             TryStopCrouch();
-    //         }
-    //     }
-
-    //     // Smooth height transition
-    //     float targetHeight = isCrouching ? crouchHeight : standingHeight;
-
-    //     controller.height = Mathf.Lerp(controller.height, targetHeight, Time.deltaTime * crouchTransitionSpeed);
-
-    //     // Also adjust center so the player doesn't float
-    //     controller.center = new Vector3(0, 0, 0);
-    //     // controller.center = new Vector3(0, controller.height / 2f, 0);
-    // }
-
     private void HandleCrouch()
     {
         bool wantsToCrouch = InputManager.CrouchPressed;

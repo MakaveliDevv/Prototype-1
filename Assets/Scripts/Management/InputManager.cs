@@ -3,14 +3,13 @@ using UnityEngine.InputSystem;
 
 public static class InputManager
 {
-    private static InputAction move;
-    private static InputAction look;
-    private static InputAction crouch;
+    private static InputAction move, look, crouch, interact;
 
     public static Vector2 MoveInput { get; private set; }
     public static Vector2 LookInput { get; private set; }
 
     public static bool CrouchPressed { get; private set; }
+    public static bool InteractPressed { get; private set; }
 
     public static void Initialize(InputActionAsset asset) 
     {
@@ -18,11 +17,15 @@ public static class InputManager
         move = map.FindAction("Move");
         look = map.FindAction("Look");
         crouch = map.FindAction("Crouch");
+        interact = map.FindAction("Interact");
 
         Enable();
 
         crouch.performed += ctx => CrouchPressed = true;
-        crouch.canceled += ctx => CrouchPressed = false;        
+        crouch.canceled += ctx => CrouchPressed = false;
+
+        interact.performed += ctx => InteractPressed = true;
+        interact.canceled += ctx => InteractPressed = false;        
     }
 
     private static void Enable() 
@@ -30,6 +33,7 @@ public static class InputManager
        move?.Enable();
        look?.Enable();
        crouch?.Enable();
+       interact?.Enable();
     }
 
     private static void Disable() 
@@ -37,6 +41,7 @@ public static class InputManager
         move?.Disable();
         look?.Disable();
         crouch?.Disable();
+        interact?.Disable();
     }
 
     public static void UpdateStickAndMoueInput() 
