@@ -15,10 +15,10 @@ public class PlayerInteraction
 
     public PlayerInteraction(PlayerEntity entity) 
     {
-        this.camera = entity.camera;
-        this.interactableMask = entity.p_settings.interactableMask;
-        this.raycastDistance = entity.p_settings.raycastDistance;
-        this.distanceThreshold = entity.p_settings.distanceThreshold;
+        camera = entity.camera;
+        interactableMask = entity.p_settings.interactableMask;
+        raycastDistance = entity.p_settings.raycastDistance;
+        distanceThreshold = entity.p_settings.distanceThreshold;
         this.entity = entity;
     }
 

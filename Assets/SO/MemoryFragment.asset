@@ -18,7 +18,7 @@ MonoBehaviour:
   descriptionText: A lot of sadness
   tag: 
   audioClip: {fileID: 0}
-  interactUIPrompt: InteractPrompt
-  collectUIPrompt: CollectPrompt
-  interactUI: {fileID: 0}
-  collectUI: {fileID: 0}
+  interactUIPrompt: RedObjectInteractPrompt
+  collectUIPrompt: RedObjectCollectPrompt
+  interactUI: {fileID: 541045034431189507, guid: b3c2d2f045612f74abacce295d1971a6, type: 3}
+  collectUI: {fileID: 638078512505125933, guid: 01334ce718a1a0b4296284692a54bbae, type: 3}
