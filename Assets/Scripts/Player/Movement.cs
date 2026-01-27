@@ -63,6 +63,9 @@ public class Movement
     {
         HandleGroundCheck();
         ApplyGravity();
+
+        if (playerEntity.InputLocked) return; // no movement/crouch while locked
+        
         HandleMovement();
         HandleCrouch();
     }
@@ -77,14 +80,16 @@ public class Movement
     
     private void ApplyGravity() 
     {
+        if (controller == null || !controller.enabled) return;
+
         velocity.y -= gravity * Time.deltaTime;
-        bool contrEnabled = controller.enabled = true;
-        if(!contrEnabled) return;
         controller.Move(velocity * Time.deltaTime);
     }
 
     private void HandleMovement() 
     {
+        if (controller == null || !controller.enabled) return;
+
         Vector2 input = InputManager.MoveInput;
         float x = input.x;
         float z = input.y;
@@ -92,9 +97,6 @@ public class Movement
         Vector3 move = controller.transform.right * x + controller.transform.forward * z;
         // controller.Move(move * walkSpeed * Time.deltaTime);
         float currentSpeed = isCrouching ? crouchSpeed : walkSpeed;
-
-        bool contrEnabled = controller.enabled = true;
-        if(!contrEnabled) return;
         
         controller.Move(currentSpeed * Time.deltaTime * move);
     }

@@ -1,37 +1,38 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraBehaviour
 {
-    private PlayerEntity playerEntity;
-    private float mouseSensivity_X;
-    private float mouseSensivity_Y;
+    private readonly PlayerEntity playerEntity;
+    private readonly float mouseSensivity_X;
+    private readonly float mouseSensivity_Y;
     
-    private Camera camera;
+    private readonly Camera camera;
     public Transform playerBody;
 
     private float pitch;
     private float headYaw;
-    private float bodyRotationSpeed;
+    private readonly float bodyRotationSpeed;
 
-    private float maxHeadYaw = 70f;  
-    private float minPitch = -80f;
-    private float maxPitch = 80f;
+    private readonly float maxHeadYaw = 70f;  
+    private readonly float minPitch = -80f;
+    private readonly float maxPitch = 80f;
 
     // ---- Crouch camera settings ----
-    private float standingCamLocalY;
-    private float crouchCamLocalY;
-    private float cameraCrouchOffset = 0.6f;      // how much lower the camera goes when crouching
-    private float cameraCrouchLerpSpeed = 10f;    // how fast the camera moves up/down
+    private readonly float standingCamLocalY;
+    private readonly float crouchCamLocalY;
+    private readonly float cameraCrouchOffset = 0.6f;      // how much lower the camera goes when crouching
+    private readonly float cameraCrouchLerpSpeed = 10f;    // how fast the camera moves up/down
 
     public CameraBehaviour(PlayerEntity playerEntity) 
     { 
         this.playerEntity = playerEntity;
-        this.playerBody = playerEntity.p_settings.playerBody;
-        this.camera = playerEntity.camera;
+        playerBody = playerEntity.p_settings.playerBody;
+        camera = playerEntity.camera;
 
-        this.mouseSensivity_X = playerEntity.p_settings.mouseSensivity_X * 10f;
-        this.mouseSensivity_Y = playerEntity.p_settings.mouseSensivity_Y * 10f;
-        this.bodyRotationSpeed = playerEntity.p_settings.bodyRotationSpeed;
+        mouseSensivity_X = playerEntity.p_settings.mouseSensivity_X * 10f;
+        mouseSensivity_Y = playerEntity.p_settings.mouseSensivity_Y * 10f;
+        bodyRotationSpeed = playerEntity.p_settings.bodyRotationSpeed;
 
         // Store standing camera height and compute crouch height
         standingCamLocalY = camera.transform.localPosition.y;
@@ -50,6 +51,7 @@ public class CameraBehaviour
     // Update is called once per frame
     public void Update()
     {
+        if (playerEntity.InputLocked) return;
         HandleMouseLook();
         HandleCrouchCamera();
     }

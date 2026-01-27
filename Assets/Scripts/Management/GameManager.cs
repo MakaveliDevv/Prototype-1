@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
 
     #endregion
     public int currentFloor;
-    private List<MemoryFragment> collectedFragments = new();
+    public List<MemoryFragmentTrigger> collectedFragments = new();
     public GraphicFader graphicFader;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -42,12 +42,12 @@ public class GameManager : MonoBehaviour
         
     }
     
-    public void CollectFragment(MemoryFragment fragment)
+    public void CollectFragment(MemoryFragmentTrigger fragment)
     {
         if (!collectedFragments.Contains(fragment))
         {
             collectedFragments.Add(fragment);
-            OnMemoryFragmentCollected(fragment.id);
+            OnMemoryFragmentCollected(fragment.memoryFragment.id);
 
             // Set interating with fragment to false
             // fragment.IsInteracting(false);

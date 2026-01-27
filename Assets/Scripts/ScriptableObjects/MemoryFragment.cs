@@ -15,4 +15,6 @@ public class MemoryFragment : ScriptableObject
     public string collectUIPrompt = "";
     public TextMeshProUGUI interactUI;
     public TextMeshProUGUI collectUI;
+
+    // create other UI fields
 }

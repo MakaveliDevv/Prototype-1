@@ -16,6 +16,26 @@ public class PlayerEntity : MonoBehaviour
     [HideInInspector]
     public CharacterController charController;
 
+    public bool InputLocked { get; private set; }
+    public void SetInputLocked(bool locked) => InputLocked = locked;
+
+    // public void SetInputLocked(bool locked)
+    // {
+    //     InputLocked = locked;
+
+    //     if(locked)
+    //     {
+    //         Cursor.lockState = CursorLockMode.None;
+    //         Cursor.visible = true;  
+    //     }
+    //     else
+    //     {
+    //         Cursor.lockState = CursorLockMode.Locked;
+    //         Cursor.visible = false;  
+    //     }
+    // }
+
+
     void Awake() 
     {
         charController = rig.GetComponent<CharacterController>();

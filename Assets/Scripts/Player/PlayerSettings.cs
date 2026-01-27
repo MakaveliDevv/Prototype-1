@@ -21,6 +21,14 @@ public class PlayerSettings
     public float bodyRotationSpeed = 10f;
     public bool invert;
 
+    [Header("Player Interaction Settings")]
+    public float StandOffDistance = 2.25f;   // how far in front of object you stand
+    public float AutoMoveSpeed = 1.5f;       // move speed for auto approach
+    public float BodyTurnSpeed = 540f;       // degrees/sec
+    public float CameraTurnSpeed = 10f;      // slerp speed
+    public float CameraMinFocusTime = 0.25f; // minimum focus blend time
+
+
     [Header("Other")]
     public float raycastDistance = 200f;
     public float distanceThreshold = 4f;

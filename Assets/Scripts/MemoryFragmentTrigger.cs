@@ -18,38 +18,67 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        if(!Interacting)
-        {
-            IsInteracting(true);
-            OnInteract();
-        }
+        if (Interacting) return;
+        InteractUI(true);
     }
     
     public void OnInteract()
     {
-        OnInteractUI(false); 
+        if (Interacting) return;
 
-        // Focus camera onto the memory fragment and stop player movement
-        StartCoroutine(FocusCameraOnInteraction());
+        IsInteracting(true);
+        InteractUI(false);
+    }
+
+    public void Collect()
+    {
+        if(!Interacting) return;
+
+        // place the fragment in the inventory from the GameManager
+        GameManager.Instance.CollectFragment(this);
+
+    }
+
+    public void OnCollect()
+    {
+        if(!Interacting) return;
+
+        // play some audio and show some message
+    }
+
+    public void InteractUI(bool triggerPrompt)
+    {
+        var prompt = GetUI(memoryFragment.interactUIPrompt);
+        if (prompt) prompt.SetActive(triggerPrompt);
+    }
+
+    public void OnInteractUI(bool triggerPrompt)
+    {
         
-        if(!isFocused) return;
-
-        // if(InputManager.InteractPressed && Interacting && !isCollecting)
-        // {
-        //     StartCoroutine(Collect());
-        // }
     }
 
-    private IEnumerator FocusCameraOnInteraction()
+    public void CollectUI(bool triggerPrompt)
     {
-        isFocused = true;
-        yield break;
+        var prompt = GetUI(memoryFragment.interactUIPrompt);
+        if (prompt) prompt.SetActive(triggerPrompt);
     }
 
-    private IEnumerator UnFocusCameraOnCollect()
+    public void OnCollectUI(bool triggerPrompt)
     {
-        isFocused = false;
-        yield break;
+        var prompt = GetUI(memoryFragment.interactUIPrompt);
+        if (prompt) prompt.SetActive(triggerPrompt);
+    }
+
+    public void OnInteractAudio(bool triggerPrompt)
+    {
+        var prompt = GetUI(memoryFragment.interactUIPrompt);
+        if (prompt) prompt.SetActive(triggerPrompt);
+    }
+
+    public void OnCollectAudio(bool triggerPrompt)
+    {
+        var prompt = GetUI(memoryFragment.interactUIPrompt);
+        if (prompt) prompt.SetActive(triggerPrompt);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -136,32 +165,6 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
         
     }
 
-    // Interaction
-    public void OnInteractUI(bool showPrompt)
-    {
-        var prompt = GetUI(memoryFragment.interactUIPrompt);
-        if (prompt) prompt.SetActive(showPrompt);
-    }
-
-    // Collect
-    private IEnumerator Collect()
-    {
-        isCollecting = true;
-
-        OnInteractUI(false); // Disable interact prompt
-
-        yield return StartCoroutine(OnCollect());
-
-        // Unfocus camera and enable player 
-        yield return StartCoroutine(UnFocusCameraOnCollect());
-
-        yield return new WaitForSeconds(3f);
-
-        IsInteracting(false);
-        isCollecting = false;
-        Destroy(this);
-    }
-
     private IEnumerator OnCollectUI(bool showPrompt, float targetAlpha)
     {
         var prompt = GetUI(memoryFragment.collectUIPrompt);
@@ -184,30 +187,6 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
 
         }
 
-        yield break;
-    }
-
-    private void OnInteractAudio()
-    {
-        
-    }
-
-    private void OnCollectAudio()
-    {
-    
-    }
-
-    private IEnumerator OnCollect()
-    {
-        GameManager.Instance.CollectFragment(memoryFragment);
-        IsInteracting(false);
-
-        StartCoroutine(OnCollectUI(true, 1f));
-        OnCollectAudio();
-
-        yield return new WaitForSeconds(2f);
-        
-        StartCoroutine(OnCollectUI(false, 0f));
         yield break;
     }
     
