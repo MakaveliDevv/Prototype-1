@@ -14,11 +14,11 @@ public class PlayerEntity : MonoBehaviour
     private PlayerInteraction playerInter;
 
     [HideInInspector]
-    public CharacterController controller;
+    public CharacterController charController;
 
     void Awake() 
     {
-        controller = rig.GetComponent<CharacterController>();
+        charController = rig.GetComponent<CharacterController>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -29,6 +29,8 @@ public class PlayerEntity : MonoBehaviour
         movement = new(this);
         cameraBh = new(this);
         playerInter = new(this);
+
+        // playerInter.Start();
     }
 
     // Update is called once per frame

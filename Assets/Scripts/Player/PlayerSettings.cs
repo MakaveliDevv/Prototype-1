@@ -22,8 +22,8 @@ public class PlayerSettings
     public bool invert;
 
     [Header("Other")]
-    public float raycastDistance = 100f;
-    public float distanceThreshold = 2f;
+    public float raycastDistance = 200f;
+    public float distanceThreshold = 4f;
 
     public Transform playerBody;
     public Transform groundCheck;

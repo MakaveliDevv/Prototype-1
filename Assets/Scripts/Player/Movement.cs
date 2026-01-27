@@ -1,32 +1,31 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Movement
 {
-    private PlayerEntity playerEntity;
-    private CharacterController controller;
+    private readonly PlayerEntity playerEntity;
+    private readonly CharacterController controller;
 
     // movement settings
-    private float walkSpeed;
-    private float gravity;
-    private float jumpHeight;
+    private readonly float walkSpeed;
+    private readonly float gravity;
+    private readonly float jumpHeight;
     // public float bodyTurnSpeed = 120f;
 
     // ground check
-    private float groundDistance;
+    private readonly float groundDistance;
 
     private Vector3 velocity;
     private bool isGrounded;
 
     // Crouch Settings 
     private bool isCrouching = false;
-    private float crouchHeight;     // how tall character is while crouched
-    private float standingHeight;   // normal height
-    private float crouchSpeed;      // walkSpeed while crouched
-    private float crouchTransitionSpeed;
+    private readonly float crouchHeight;     // how tall character is while crouched
+    private readonly float standingHeight;   // normal height
+    private readonly float crouchSpeed;      // walkSpeed while crouched
+    private readonly float crouchTransitionSpeed;
 
     // Remember original controller center so we don't mess it up
-    private float originalCenterY;
+    private readonly float originalCenterY;
 
     public bool IsCrouching => isCrouching;
 
@@ -34,26 +33,24 @@ public class Movement
     {
         // Components
         this.playerEntity = playerEntity;
-        this.controller = playerEntity.controller;
+        controller = playerEntity.charController;
 
         // Movement Settings
-        this.walkSpeed = playerEntity.p_settings.walkSpeed;
-        this.gravity = playerEntity.p_settings.gravity;
+        walkSpeed = playerEntity.p_settings.walkSpeed;
+        gravity = playerEntity.p_settings.gravity;
         
         // Crouch Settings
-        this.crouchHeight = playerEntity.p_settings.crouchHeight;
-        this.standingHeight = playerEntity.p_settings.standingHeight;
-        this.crouchSpeed = playerEntity.p_settings.crouchSpeed;
-        this.crouchTransitionSpeed = playerEntity.p_settings.crouchTransitionSpeed;
+        crouchHeight = playerEntity.p_settings.crouchHeight;
+        standingHeight = playerEntity.p_settings.standingHeight;
+        crouchSpeed = playerEntity.p_settings.crouchSpeed;
+        crouchTransitionSpeed = playerEntity.p_settings.crouchTransitionSpeed;
         
         originalCenterY = controller.center.y;
         controller.height = standingHeight;
 
         // Jump Settings
-        this.jumpHeight = playerEntity.p_settings.jumpHeight;
-        this.groundDistance = playerEntity.p_settings.groundDistance;
-
-        // Start();
+        jumpHeight = playerEntity.p_settings.jumpHeight;
+        groundDistance = playerEntity.p_settings.groundDistance;
     }
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -81,6 +78,8 @@ public class Movement
     private void ApplyGravity() 
     {
         velocity.y -= gravity * Time.deltaTime;
+        bool contrEnabled = controller.enabled = true;
+        if(!contrEnabled) return;
         controller.Move(velocity * Time.deltaTime);
     }
 
@@ -93,7 +92,11 @@ public class Movement
         Vector3 move = controller.transform.right * x + controller.transform.forward * z;
         // controller.Move(move * walkSpeed * Time.deltaTime);
         float currentSpeed = isCrouching ? crouchSpeed : walkSpeed;
-        controller.Move(move * currentSpeed * Time.deltaTime);
+
+        bool contrEnabled = controller.enabled = true;
+        if(!contrEnabled) return;
+        
+        controller.Move(currentSpeed * Time.deltaTime * move);
     }
 
     private void HandleCrouch()

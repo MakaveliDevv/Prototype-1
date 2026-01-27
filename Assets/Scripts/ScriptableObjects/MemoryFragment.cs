@@ -11,8 +11,6 @@ public class MemoryFragment : ScriptableObject
     public string descriptionText = "";
     // public string tag = "";
     // public AudioClip audioClip;
-    public bool Interacting { get; private set; }
-    public bool IsInteracting(bool interacting) => Interacting = interacting;
     public string interactUIPrompt = "";
     public string collectUIPrompt = "";
     public TextMeshProUGUI interactUI;

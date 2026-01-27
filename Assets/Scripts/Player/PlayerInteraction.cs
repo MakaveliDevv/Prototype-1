@@ -2,16 +2,17 @@ using UnityEngine;
 
 public class PlayerInteraction
 {
-    private Camera camera;
+    private readonly Camera camera;
     private LayerMask interactableMask;
-    private PlayerEntity entity;
+    private readonly PlayerEntity entity;
 
     private RaycastHit hit;
     private bool hitInteractable = false;
-    private float raycastDistance;
-    private float distanceThreshold;
+    private readonly float raycastDistance;
+    private readonly float distanceThreshold;
 
     private IInteractable interactable;
+    // private float distanceFromFragment;
 
     public PlayerInteraction(PlayerEntity entity) 
     {
@@ -23,7 +24,7 @@ public class PlayerInteraction
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void Start()
     {
         
     }
@@ -32,8 +33,25 @@ public class PlayerInteraction
     public void Update()
     {
         RayCasting();   
-    }
+        CheckIfAllowedToInteract();
+        // if(CastedObject() != null && interactable is MemoryFragmentTrigger fragment)
+        // {
+        //     float calcDistance = CalculatedDistance();
+        //     if(calcDistance >= distanceThreshold)
+        //     {
+        //         fragment.OnInteractUI(false);
+        //     }
+        // }
 
+        // if(interactable is MemoryFragmentTrigger f)
+        // {
+        //     if(f.isFocused && entity.charController.enabled)
+        //         entity.charController.enabled = false;
+            
+        //     if(!f.isFocused && !entity.charController.enabled)
+        //         entity.charController.enabled = true;
+        // }
+    }
 
     private void RayCasting() 
     {
@@ -54,12 +72,10 @@ public class PlayerInteraction
             if (hit.collider.TryGetComponent<IInteractable>(out var i))
             {
                 if (interactable != i)
-                {
                     Debug.Log($"Now looking at new interactable: {hit.collider.gameObject.name}");
-                }
                 
                 interactable = i;
-                CheckIfAllowedToInteract();
+                // CheckIfAllowedToInteract();
             }
             else
             {
@@ -79,29 +95,50 @@ public class PlayerInteraction
         }
     }
 
-    private void CheckIfAllowedToInteract() 
+    private void CheckIfAllowedToInteract()
     {
         if (!hitInteractable || interactable == null)
             return;
 
+        float distanceFromFragment = CalculatedDistance();
+
+        if(interactable is MemoryFragmentTrigger fragment)
+        {
+            if(distanceFromFragment <= distanceThreshold)
+            {
+                if(!fragment.Interacting) 
+                    fragment.OnInteractUI(true);
+                
+                if(InputManager.InteractPressed)
+                    interactable.Interact();
+            }
+            else
+            {
+                fragment.IsInteracting(false);
+                fragment.OnInteractUI(false);   
+            }   
+        }
+    }
+    
+    private float CalculatedDistance()
+    {
         Vector3 playerPos = entity.p_settings.playerBody.transform.position;
         Vector3 targetPos = hit.collider.transform.position;
 
         // Horizontal distance (X/Z) only
-        float horizontalDistance = Vector2.Distance(
+        float distance = Vector2.Distance(
             new Vector2(playerPos.x, playerPos.z),
             new Vector2(targetPos.x, targetPos.z)
         );
 
         Debug.Log($"[INTERACTION DEBUG] Looking at {hit.collider.name} | " +
-                  $"distance = {horizontalDistance:F2} | threshold = {distanceThreshold}");
+                  $"distance = {distance:F2} | threshold = {distanceThreshold}");
 
-        if (horizontalDistance <= distanceThreshold)
-        {
-            Debug.Log("[INTERACTION DEBUG] Distance OK, calling Interact()");
-            interactable.Interact();
-        }
+        return distance;
+    }
+
+    public GameObject CastedObject()
+    {
+        return hitInteractable && hit.collider != null ? hit.collider.gameObject : null;
     } 
-
-    // public GameObject CastedObject() => hit.collider.gameObject;
 }

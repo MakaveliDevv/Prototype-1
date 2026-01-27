@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
             OnMemoryFragmentCollected(fragment.id);
 
             // Set interating with fragment to false
-            fragment.IsInteracting(false);
+            // fragment.IsInteracting(false);
         }
     }
 

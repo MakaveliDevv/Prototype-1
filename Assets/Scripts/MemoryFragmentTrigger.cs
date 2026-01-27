@@ -1,14 +1,15 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
 {
     public MemoryFragment memoryFragment;
-    private bool isFocused;
+    public bool isFocused;
     private bool isCollecting;
+    public bool Interacting;
+    public bool IsInteracting(bool interacting) => Interacting = interacting;
+
 
     [Header("UI References")]
     [SerializeField] private List<UIEntry> uiEntries = new();
@@ -17,28 +18,26 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        // Display interact UI prompt
-        OnInteractUI(true);
-
-        // If player presses the interact button, call OnInteract
-        if(InputManager.InteractPressed && !memoryFragment.Interacting)
+        if(!Interacting)
         {
-            memoryFragment.IsInteracting(true);
+            IsInteracting(true);
             OnInteract();
         }
     }
     
     public void OnInteract()
     {
+        OnInteractUI(false); 
+
         // Focus camera onto the memory fragment and stop player movement
         StartCoroutine(FocusCameraOnInteraction());
         
         if(!isFocused) return;
 
-        if(InputManager.InteractPressed && memoryFragment.Interacting && !isCollecting)
-        {
-            StartCoroutine(Collect());
-        }
+        // if(InputManager.InteractPressed && Interacting && !isCollecting)
+        // {
+        //     StartCoroutine(Collect());
+        // }
     }
 
     private IEnumerator FocusCameraOnInteraction()
@@ -47,67 +46,11 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
         yield break;
     }
 
-    private IEnumerator UnFocusCameraOnCollection()
+    private IEnumerator UnFocusCameraOnCollect()
     {
         isFocused = false;
         yield break;
     }
-
-    // private void Awake()
-    // {
-    //     if (memoryFragment == null)
-    //     {
-    //         Debug.LogError($"{name}: memoryFragment is not assigned.", this);
-    //         enabled = false;
-    //         return;
-    //     }
-
-    //     if (memoryFragment.interactUI == null)
-    //         Debug.LogError($"{name}: memoryFragment.interactUI is not assigned (TMP UI).", this);
-
-    //     if (memoryFragment.collectUI == null)
-    //         Debug.LogError($"{name}: memoryFragment.collectUI is not assigned (TMP UI).", this);
-
-    //     // Only proceed if required refs exist
-    //     if (memoryFragment.interactUI == null || memoryFragment.collectUI == null)
-    //     {
-    //         enabled = false;
-    //         return;
-    //     }
-        
-    //     // interact UI
-    //     uiEntries.Add(new UIEntry
-    //     {
-    //        key = memoryFragment.interactUIPrompt,
-    //        value = memoryFragment.interactUI.gameObject 
-    //     });
-
-    //     // collect UI
-    //     uiEntries.Add(new UIEntry
-    //     {
-    //         key = memoryFragment.collectUIPrompt,
-    //         value = memoryFragment.collectUI.gameObject
-    //     });
-
-    //     uiMap = new Dictionary<string, GameObject>(uiEntries.Count);
-
-    //     foreach (var e in uiEntries)
-    //     {
-    //         if (string.IsNullOrWhiteSpace(e.key))
-    //         {
-    //             Debug.LogWarning($"{name}: UI entry has empty key.", this);
-    //             continue;
-    //         }
-
-    //         if (uiMap.ContainsKey(e.key))
-    //         {
-    //             Debug.LogWarning($"{name}: Duplicate key '{e.key}' found. Keeping first.", this);
-    //             continue;
-    //         }
-
-    //         uiMap.Add(e.key, e.value);
-    //     }
-    // }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -194,7 +137,7 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
     }
 
     // Interaction
-    private void OnInteractUI(bool showPrompt)
+    public void OnInteractUI(bool showPrompt)
     {
         var prompt = GetUI(memoryFragment.interactUIPrompt);
         if (prompt) prompt.SetActive(showPrompt);
@@ -207,15 +150,14 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
 
         OnInteractUI(false); // Disable interact prompt
 
-        GameManager.Instance.CollectFragment(memoryFragment);
         yield return StartCoroutine(OnCollect());
 
         // Unfocus camera and enable player 
-        yield return StartCoroutine(UnFocusCameraOnCollection());
+        yield return StartCoroutine(UnFocusCameraOnCollect());
 
         yield return new WaitForSeconds(3f);
 
-        memoryFragment.IsInteracting(false);
+        IsInteracting(false);
         isCollecting = false;
         Destroy(this);
     }
@@ -257,6 +199,9 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
 
     private IEnumerator OnCollect()
     {
+        GameManager.Instance.CollectFragment(memoryFragment);
+        IsInteracting(false);
+
         StartCoroutine(OnCollectUI(true, 1f));
         OnCollectAudio();
 
