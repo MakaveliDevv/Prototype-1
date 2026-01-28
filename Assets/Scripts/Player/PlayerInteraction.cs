@@ -1,157 +1,3 @@
-// using UnityEngine;
-
-// public class PlayerInteraction
-// {
-//     private readonly Camera camera;
-//     private LayerMask interactableMask;
-//     private readonly PlayerEntity entity;
-
-//     private RaycastHit hit;
-//     private bool hitInteractable = false;
-//     private readonly float raycastDistance;
-//     private readonly float distanceThreshold;
-
-//     private IInteractable interactable;
-//     // private float distanceFromFragment;
-
-//     private MemoryFragmentTrigger activeFragment;
-
-
-//     public PlayerInteraction(PlayerEntity entity) 
-//     {
-//         camera = entity.camera;
-//         interactableMask = entity.p_settings.interactableMask;
-//         raycastDistance = entity.p_settings.raycastDistance;
-//         distanceThreshold = entity.p_settings.distanceThreshold;
-//         this.entity = entity;
-//     }
-
-//     // Start is called once before the first execution of Update after the MonoBehaviour is created
-//     public void Start()
-//     {
-        
-//     }
-
-//     // Update is called once per frame
-//     public void Update()
-//     {
-//         RayCasting();   
-//         CheckIfAllowedToInteract();
-
-//         // if(interactable is MemoryFragmentTrigger f)
-//         // {
-//         //     if(f.isFocused && entity.charController.enabled)
-//         //         entity.charController.enabled = false;
-            
-//         //     if(!f.isFocused && !entity.charController.enabled)
-//         //         entity.charController.enabled = true;
-//         // }
-//     }
-
-//     private void RayCasting() 
-//     {
-//         hitInteractable = Physics.Raycast(
-//             camera.transform.position,
-//             camera.transform.forward,
-//             out hit,
-//             raycastDistance,
-//             interactableMask
-//         );
-
-//         if (hitInteractable)
-//         {
-//             Debug.DrawRay(camera.transform.position,
-//                         camera.transform.forward * hit.distance,
-//                         Color.green);
-
-//             if (hit.collider.TryGetComponent<IInteractable>(out var i))
-//             {
-//                 if (interactable != i)
-//                     Debug.Log($"Now looking at new interactable: {hit.collider.gameObject.name}");
-                
-//                 interactable = i;
-//                 // CheckIfAllowedToInteract();
-//             }
-//             else
-//             {
-//                 // Hit something on the interactable layer, but no component
-//                 if (interactable != null)
-//                     Debug.Log("Hit non-interactable object, clearing reference.");
-
-//                 interactable = null;
-//             }
-//         }
-//         else
-//         {
-//             if (interactable != null)
-//                 Debug.Log("No interactable hit, clearing reference.");
-
-//             interactable = null;
-//         }
-//     }
-
-//     private void CheckIfAllowedToInteract()
-//     {
-//         if (hitInteractable && interactable is MemoryFragmentTrigger fragment)
-//         {
-//             float distance = CalculatedDistance();
-
-//             if (distance <= distanceThreshold)
-//             {
-//                 if (activeFragment != fragment)
-//                 {
-//                     HideActiveUI();
-//                     activeFragment = fragment;
-//                 }
-
-//                 if (!fragment.Interacting)
-//                     fragment.OnInteractUI(true);
-
-//                 if (InputManager.InteractPressed)
-//                     fragment.Interact();
-
-//                 return;
-//             }
-//         }
-
-//         HideActiveUI();
-//     }
-    
-//     private float CalculatedDistance()
-//     {
-//         Vector3 playerPos = entity.p_settings.playerBody.transform.position;
-//         Vector3 targetPos = hit.collider.transform.position;
-
-//         // Horizontal distance (X/Z) only
-//         float distance = Vector2.Distance(
-//             new Vector2(playerPos.x, playerPos.z),
-//             new Vector2(targetPos.x, targetPos.z)
-//         );
-
-//         Debug.Log($"[INTERACTION DEBUG] Looking at {hit.collider.name} | " +
-//                   $"distance = {distance:F2} | threshold = {distanceThreshold}");
-
-//         return distance;
-//     }
-
-
-//     private void HideActiveUI()
-//     {
-//         if (activeFragment == null)
-//             return;
-
-//         activeFragment.IsInteracting(false);
-//         activeFragment.OnInteractUI(false);
-//         activeFragment = null;
-//     }
-    
-//     public GameObject CastedObject()
-//     {
-//         return hitInteractable && hit.collider != null ? hit.collider.gameObject : null;
-//     } 
-// }
-
-
 using System.Collections;
 using UnityEngine;
 
@@ -197,7 +43,6 @@ public class PlayerInteraction
 
         UpdatePromptAndEligibility();
 
-        // Pressed interact while prompt is active => call OnInteract (interface) then start sequence
         if (activeInteraction != null && InteractDown() && interactionRoutine == null)
         {
             activeInteraction.OnInteract();
@@ -238,14 +83,13 @@ public class PlayerInteraction
 
     private void UpdatePromptAndEligibility()
     {
-        // If currently looking at a fragment, we can compute distance.
         if (hitInteractable && interactable is MemoryFragmentTrigger fragment && hit.collider != null)
         {
             float dist = CalculatedDistance(hit.collider.transform.position);
 
             if (dist <= entity.p_settings.distanceThreshold && !fragment.Interacting)
             {
-                // Transfer prompt ownership cleanly
+                // Transfer prompt ownership
                 if (activeInteraction != fragment)
                 {
                     HidePrompt();
@@ -311,15 +155,13 @@ public class PlayerInteraction
     private IEnumerator InteractionSequence(MemoryFragmentTrigger fragment)
     {
         currentInteraction = fragment;
-
-        // Lock input (requires you to implement SetInputLocked + respect it in Movement/CameraBehaviour)
         entity.SetInputLocked(true);
 
         // Hide prompt and mark interacting
         fragment.InteractUI(false);
         fragment.IsInteracting(true);
 
-        // Make sure controller is enabled while we auto-move
+        // Make sure controller is enabled while auto-move
         var controller = entity.charController;
         if (controller != null) controller.enabled = true;
 
@@ -336,10 +178,10 @@ public class PlayerInteraction
         // 4) Freeze movement
         if (controller != null) controller.enabled = false;
 
-        // Mark focused (your flag)
+        // Mark focused
         fragment.isFocused = true;
 
-        // Stay in interaction mode until someone ends it (cancel later)
+        // Stay in interaction mode until cancel or end
         while (fragment.Interacting)
         {
             if(CollectDown())
@@ -386,11 +228,9 @@ public class PlayerInteraction
 
     private Vector3 ComputeStandPosition(MemoryFragmentTrigger fragment, float distance)
     {
-        // "Front" is defined by fragment.transform.forward
         Vector3 focus = FocusPoint(fragment);
         Vector3 stand = focus - fragment.transform.forward * distance;
 
-        // Keep current player height
         stand.y = entity.p_settings.playerBody.position.y;
         return stand;
     }

@@ -13,8 +13,16 @@ public class MemoryFragment : ScriptableObject
     // public AudioClip audioClip;
     public string interactUIPrompt = "";
     public string collectUIPrompt = "";
+    
     public TextMeshProUGUI interactUI;
-    public TextMeshProUGUI collectUI;
+    public TextMeshProUGUI onInteractUI;
 
-    // create other UI fields
+    public TextMeshProUGUI collectUI;
+    public TextMeshProUGUI onCollectUI;
+
+    public AudioSource interactAudio;
+    public AudioSource onInteractAudio;
+
+    public AudioSource collectAudio;
+    public AudioSource onCollectAudio;
 }

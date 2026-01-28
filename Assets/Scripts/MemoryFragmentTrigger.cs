@@ -6,7 +6,6 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
 {
     public MemoryFragment memoryFragment;
     public bool isFocused;
-    private bool isCollecting;
     public bool Interacting;
     public bool IsInteracting(bool interacting) => Interacting = interacting;
 
@@ -15,6 +14,10 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
     [SerializeField] private List<UIEntry> uiEntries = new();
 
     private Dictionary<string, GameObject> uiMap;
+
+    [Header("Audio References")]
+    [SerializeField] private List<AudioEntry> audioEntries = new();
+    private Dictionary<string, AudioSource> audioMap;
 
     public void Interact()
     {
@@ -103,7 +106,40 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
             enabled = false;
             return;
         }
+        
+        UIInitialization();
+    }
 
+    private void AudioInitialization()
+    {
+        audioEntries.Add(new AudioEntry
+        {
+            key = memoryFragment.interactAudio.name,
+            value = memoryFragment.interactAudio
+        });
+
+        audioEntries.Add(new AudioEntry
+        {
+            key = memoryFragment.onInteractAudio.name,
+            value = memoryFragment.onInteractAudio
+        });
+
+        audioEntries.Add(new AudioEntry
+        {
+            key = memoryFragment.collectAudio.name,
+            value = memoryFragment.collectAudio
+        });
+
+        audioEntries.Add(new AudioEntry
+        {
+            key = memoryFragment.onCollectAudio.name,
+            value = memoryFragment.onCollectAudio
+        });
+        
+    }
+
+    private void UIInitialization()
+    {
         var canvas = transform.GetChild(0);
 
         var interactUI = Instantiate(memoryFragment.interactUI, canvas, false);
@@ -156,7 +192,6 @@ public class MemoryFragmentTrigger : MonoBehaviour, IInteractable
 
             uiMap.Add(e.key, e.value);
         }
-        
     }
 
     // Update is called once per frame

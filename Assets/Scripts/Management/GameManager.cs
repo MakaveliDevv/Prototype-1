@@ -67,6 +67,13 @@ public class UIEntry
 }
 
 [System.Serializable]
+public class AudioEntry
+{
+    public string key;
+    public AudioSource value;
+}
+
+[System.Serializable]
 public class GraphicFader
 {
     private Graphic graphic;
