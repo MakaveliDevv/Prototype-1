@@ -3,128 +3,149 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+namespace Assets.Scripts
 {
-    #region Singleton
-
-    private static GameManager instance;
-    public static GameManager Instance
+    public enum FragmentUIKey { Interact, OnInteract, Collect, OnCollect }
+    public enum FragmentAudioKey { Interact, OnInteract, Collect, OnCollect }
+    
+    public class GameManager : MonoBehaviour
     {
-        get
+        #region Singleton
+
+        private static GameManager instance;
+        public static GameManager Instance
         {
-            if (instance == null)
+            get
             {
-                instance = FindFirstObjectByType<GameManager>();
                 if (instance == null)
                 {
-                    GameObject singleton = new ("GameManager");
-                    instance = singleton.AddComponent<GameManager>();
+                    instance = FindFirstObjectByType<GameManager>();
+                    if (instance == null)
+                    {
+                        GameObject singleton = new ("GameManager");
+                        instance = singleton.AddComponent<GameManager>();
+                    }
                 }
+                return instance;
             }
-            return instance;
         }
-    }
 
-    #endregion
-    public int currentFloor;
-    public List<MemoryFragmentTrigger> collectedFragments = new();
-    public GraphicFader graphicFader;
+        #endregion
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        graphicFader = new(this);
-    }
+        public int currentFloor;
+        public HashSet<MemoryFragmentTrigger> collectedFragments = new();
+        public GraphicFader graphicFader;
+        public AudioSource audioSource;
 
-    // Update is called once per frame
-    void Update()
-    {
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
+        {
+            graphicFader = new(this);
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            
+        }
         
-    }
-    
-    public void CollectFragment(MemoryFragmentTrigger fragment)
-    {
-        if (!collectedFragments.Contains(fragment))
+        public void CollectFragment(MemoryFragmentTrigger fragment)
         {
-            collectedFragments.Add(fragment);
-            OnMemoryFragmentCollected(fragment.memoryFragment.id);
-
-            // Set interating with fragment to false
-            // fragment.IsInteracting(false);
-        }
-    }
-
-    private void OnMemoryFragmentCollected(int fragmentId) { }
-
-    private bool CanUnlockRooftop() { return false; }
-}
-
-[System.Serializable]
-public class UIEntry
-{
-    public string key;
-    public GameObject value;
-}
-
-[System.Serializable]
-public class AudioEntry
-{
-    public string key;
-    public AudioSource value;
-}
-
-[System.Serializable]
-public class GraphicFader
-{
-    private Graphic graphic;
-    [SerializeField] private float duration = 0.3f;
-
-    private Coroutine routine;
-    private readonly MonoBehaviour mono;
-
-    public GraphicFader(MonoBehaviour mono)
-    {
-        this.mono = mono;
-    }
-
-    public void Reset(GameObject go)
-    {
-        graphic = go.GetComponent<Graphic>();
-        Color c = graphic.color;
-        c.a = 0f;
-    }
-
-    public void FadeTo(GameObject go, float targetAlpha)
-    {
-        if (graphic == null) graphic = go.GetComponent<Graphic>();
-        if (graphic == null)
-        {
-            Debug.LogError("GraphicFader requires a UI Graphic (Image/Text/etc).");
-            return;
+            if (!collectedFragments.Contains(fragment))
+            {
+                collectedFragments.Add(fragment);
+                OnMemoryFragmentCollected(fragment.memoryFragment.id);
+            }
         }
 
-        if (routine != null) mono.StopCoroutine(routine);
-        routine = mono.StartCoroutine(Fade(targetAlpha));
+        public bool HasAllFragments(IReadOnlyCollection<string> requiredTags)
+        {
+            if (requiredTags == null || requiredTags.Count == 0)
+                return false;
+
+            var remaining = new HashSet<string>(requiredTags);
+
+            foreach (var trigger in collectedFragments)
+            {
+                if (trigger == null) 
+                    continue;
+
+                var fragment = trigger.memoryFragment;
+                if (fragment == null)
+                    continue;
+
+                var tag = fragment.tag; 
+                if (string.IsNullOrWhiteSpace(tag))
+                    continue;
+
+                remaining.Remove(tag);
+
+                if (remaining.Count == 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+
+        private void OnMemoryFragmentCollected(int fragmentId) { }
+
+        private bool CanUnlockRooftop() { return false; }
     }
 
-    private IEnumerator Fade(float targetAlpha)
+    [System.Serializable]
+    public class GraphicFader
     {
-        Color c = graphic.color;
-        float startAlpha = c.a;
-        float t = 0f;
+        private Graphic graphic;
+        [SerializeField] private float duration = 0.3f;
 
-        while (t < duration)
+        private Coroutine routine;
+        private readonly MonoBehaviour mono;
+
+        public GraphicFader(MonoBehaviour mono)
         {
-            t += Time.unscaledDeltaTime;
-            float p = Mathf.Clamp01(t / duration);
-            c.a = Mathf.Lerp(startAlpha, targetAlpha, p);
+            this.mono = mono;
+        }
+
+        public void Reset(GameObject go)
+        {
+            graphic = go.GetComponent<Graphic>();
+            Color c = graphic.color;
+            c.a = 0f;
+        }
+
+        public void FadeTo(GameObject go, float targetAlpha)
+        {
+            if (graphic == null) graphic = go.GetComponent<Graphic>();
+            if (graphic == null)
+            {
+                Debug.LogError("GraphicFader requires a UI Graphic (Image/Text/etc).");
+                return;
+            }
+
+            if (routine != null) mono.StopCoroutine(routine);
+            routine = mono.StartCoroutine(Fade(targetAlpha));
+        }
+
+        private IEnumerator Fade(float targetAlpha)
+        {
+            Color c = graphic.color;
+            float startAlpha = c.a;
+            float t = 0f;
+
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                float p = Mathf.Clamp01(t / duration);
+                c.a = Mathf.Lerp(startAlpha, targetAlpha, p);
+                graphic.color = c;
+                yield return null;
+            }
+
+            c.a = targetAlpha;
             graphic.color = c;
-            yield return null;
+
+            routine = null;
         }
-
-        c.a = targetAlpha;
-        graphic.color = c;
-
-        routine = null;
     }
 }

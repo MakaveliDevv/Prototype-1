@@ -1,66 +1,70 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public static class InputManager
+namespace Assets.Scripts
 {
-    private static InputAction move, look, crouch, interact, cancelInteract, collect;
 
-    public static Vector2 MoveInput { get; private set; }
-    public static Vector2 LookInput { get; private set; }
-
-    public static bool CrouchPressed { get; private set; }
-    public static bool InteractPressed { get; private set; }
-    public static bool CancelInteractPressed { get; private set; }
-    public static bool CollectPressed { get; private set; }
-
-    public static void Initialize(InputActionAsset asset) 
+    public static class InputManager
     {
-        var map = asset.FindActionMap("Player");
-        move = map.FindAction("Move");
-        look = map.FindAction("Look");
-        crouch = map.FindAction("Crouch");
-        interact = map.FindAction("Interact");
-        cancelInteract = map.FindAction("Cancel Interaction");
-        collect = map.FindAction("Collect");
+        private static InputAction move, look, crouch, interact, cancelInteract, collect;
 
-        Enable();
+        public static Vector2 MoveInput { get; private set; }
+        public static Vector2 LookInput { get; private set; }
 
-        crouch.performed += ctx => CrouchPressed = true;
-        crouch.canceled += ctx => CrouchPressed = false;
+        public static bool CrouchPressed { get; private set; }
+        public static bool InteractPressed { get; private set; }
+        public static bool CancelInteractPressed { get; private set; }
+        public static bool CollectPressed { get; private set; }
 
-        interact.performed += ctx => InteractPressed = true;
-        interact.canceled += ctx => InteractPressed = false;
+        public static void Initialize(InputActionAsset asset) 
+        {
+            var map = asset.FindActionMap("Player");
+            move = map.FindAction("Move");
+            look = map.FindAction("Look");
+            crouch = map.FindAction("Crouch");
+            interact = map.FindAction("Interact");
+            cancelInteract = map.FindAction("Cancel Interaction");
+            collect = map.FindAction("Collect");
 
-        cancelInteract.performed += ctx => CancelInteractPressed = true;
-        cancelInteract.canceled += ctx => CancelInteractPressed = false;
+            Enable();
 
-        collect.performed += ctx => CollectPressed = true;
-        collect.canceled += ctx => CollectPressed = false;          
-    }
+            crouch.performed += ctx => CrouchPressed = true;
+            crouch.canceled += ctx => CrouchPressed = false;
 
-    private static void Enable() 
-    {
-       move?.Enable();
-       look?.Enable();
-       crouch?.Enable();
-       interact?.Enable();
-       cancelInteract?.Enable();
-       collect?.Enable();
-    }
+            interact.performed += ctx => InteractPressed = true;
+            interact.canceled += ctx => InteractPressed = false;
 
-    private static void Disable() 
-    {
-        move?.Disable();
-        look?.Disable();
-        crouch?.Disable();
-        interact?.Disable();
-        cancelInteract?.Disable();
-        collect?.Disable();
-    }
+            cancelInteract.performed += ctx => CancelInteractPressed = true;
+            cancelInteract.canceled += ctx => CancelInteractPressed = false;
 
-    public static void UpdateStickAndMoueInput() 
-    {
-        MoveInput = move.ReadValue<Vector2>();
-        LookInput = look.ReadValue<Vector2>();
+            collect.performed += ctx => CollectPressed = true;
+            collect.canceled += ctx => CollectPressed = false;          
+        }
+
+        private static void Enable() 
+        {
+        move?.Enable();
+        look?.Enable();
+        crouch?.Enable();
+        interact?.Enable();
+        cancelInteract?.Enable();
+        collect?.Enable();
+        }
+
+        private static void Disable() 
+        {
+            move?.Disable();
+            look?.Disable();
+            crouch?.Disable();
+            interact?.Disable();
+            cancelInteract?.Disable();
+            collect?.Disable();
+        }
+
+        public static void UpdateStickAndMoueInput() 
+        {
+            MoveInput = move.ReadValue<Vector2>();
+            LookInput = look.ReadValue<Vector2>();
+        }
     }
 }
