@@ -3,8 +3,8 @@ using TMPro;
 
 namespace Assets.Scripts
 {
-    [CreateAssetMenu(fileName = "MemoryFragment", menuName = "Scriptable Objects/MemoryFragments")]
-    public class MemoryFragment : ScriptableObject
+    [CreateAssetMenu(fileName = "Fragment", menuName = "Scriptable Objects/Fragments")]
+    public class Fragment : ScriptableObject
     {
         public int id;
         public int floorIndex;
